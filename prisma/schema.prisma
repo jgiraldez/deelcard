@@ -1,0 +1,144 @@
+// Prisma Schema for DealCard App
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Parent/Guardian User
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  supabaseId    String?   @unique // Link to Supabase Auth user
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  kids          Kid[]
+  transactions  Transaction[]
+  rewards       Reward[]
+
+  @@index([email])
+  @@index([supabaseId])
+}
+
+// Kid Profile
+model Kid {
+  id            String    @id @default(cuid())
+  name          String
+  age           Int?
+  avatarUrl     String?
+  pin           String?   // Hashed PIN for kid-mode access
+  balance       Float     @default(0)
+  userId        String    // Parent user
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions  Transaction[]
+  rewardClaims  RewardClaim[]
+
+  @@index([userId])
+}
+
+// Transaction (Chores, Allowance, Purchases)
+model Transaction {
+  id            String    @id @default(cuid())
+  type          TransactionType
+  amount        Float
+  description   String
+  category      String?
+  status        TransactionStatus @default(PENDING)
+  metadata      Json?     // Extra data (e.g., chore details, receipt URL)
+  kidId         String
+  userId        String    // Parent who approved/created
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  kid           Kid       @relation(fields: [kidId], references: [id], onDelete: Cascade)
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([kidId])
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum TransactionType {
+  CHORE
+  ALLOWANCE
+  PURCHASE
+  BONUS
+  PENALTY
+}
+
+enum TransactionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+// Rewards Catalog
+model Reward {
+  id            String    @id @default(cuid())
+  title         String
+  description   String?
+  cost          Float
+  imageUrl      String?
+  available     Boolean   @default(true)
+  userId        String    // Parent who created it
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  claims        RewardClaim[]
+
+  @@index([userId])
+  @@index([available])
+}
+
+// Reward Claims
+model RewardClaim {
+  id            String    @id @default(cuid())
+  kidId         String
+  rewardId      String
+  status        ClaimStatus @default(PENDING)
+  claimedAt     DateTime  @default(now())
+  fulfilledAt   DateTime?
+
+  // Relations
+  kid           Kid       @relation(fields: [kidId], references: [id], onDelete: Cascade)
+  reward        Reward    @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+
+  @@index([kidId])
+  @@index([rewardId])
+  @@index([status])
+}
+
+enum ClaimStatus {
+  PENDING
+  APPROVED
+  FULFILLED
+  REJECTED
+}
+
+// AI Chat History (optional - for Claude conversations)
+model ChatMessage {
+  id            String    @id @default(cuid())
+  role          String    // "user" or "assistant"
+  content       String    @db.Text
+  metadata      Json?     // Store additional context
+  sessionId     String    // Group messages by session
+  createdAt     DateTime  @default(now())
+
+  @@index([sessionId])
+  @@index([createdAt])
+}
