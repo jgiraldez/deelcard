@@ -52,8 +52,8 @@ export default async function DashboardPage() {
     dbUser = {
       name: user.user_metadata?.name || user.email?.split('@')[0] || 'Parent',
       email: user.email,
-      kids: [],
-    }
+      kids: [] as any[],
+    } as any
   }
 
   const handleSignOut = async () => {
