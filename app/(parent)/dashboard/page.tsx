@@ -41,7 +41,14 @@ export default async function DashboardPage() {
           name: user.user_metadata?.name || null,
         },
         include: {
-          kids: true,
+          kids: {
+            include: {
+              transactions: {
+                take: 5,
+                orderBy: { createdAt: 'desc' },
+              },
+            },
+          },
         },
       })
     }
