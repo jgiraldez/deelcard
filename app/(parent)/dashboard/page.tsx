@@ -142,7 +142,7 @@ export default async function DashboardPage() {
                   </p>
                 </div>
 
-                {kid.transactions.length > 0 && (
+                {kid.transactions && kid.transactions.length > 0 && (
                   <div className="border-t pt-4">
                     <p className="text-sm font-medium text-gray-700 mb-2">Recent Activity</p>
                     <div className="space-y-2">
