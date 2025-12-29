@@ -129,7 +129,7 @@ Be encouraging and positive. Keep responses under 300 words.`
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: 'Invalid input', details: error.errors }, { status: 400 })
+      return NextResponse.json({ error: 'Invalid input', details: error.issues }, { status: 400 })
     }
     console.error('Error in chat:', error)
     return NextResponse.json({ error: 'Failed to process chat' }, { status: 500 })
