@@ -1,9 +1,13 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Kid, Transaction } from '@prisma/client'
 import Link from 'next/link'
 
 const prisma = new PrismaClient()
+
+type KidWithTransactions = Kid & {
+  transactions: Transaction[]
+}
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -119,7 +123,7 @@ export default async function DashboardPage() {
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {dbUser.kids.map((kid) => (
+            {dbUser.kids.map((kid: KidWithTransactions) => (
               <div key={kid.id} className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div>
