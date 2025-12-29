@@ -11,7 +11,7 @@ const CreateTransactionSchema = z.object({
   amount: z.number(),
   description: z.string().min(1).max(500),
   category: z.string().optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 })
 
 // GET /api/transactions - List transactions
