@@ -115,7 +115,7 @@ export default async function DashboardPage() {
               Get started by adding your first child to track their allowance
             </p>
             <Link
-              href="/api/kids/add"
+              href="/kids/add"
               className="inline-block px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
             >
               Add Child
