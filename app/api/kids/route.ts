@@ -89,6 +89,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid input', details: error.issues }, { status: 400 })
     }
     console.error('Error creating kid:', error)
-    return NextResponse.json({ error: 'Failed to create kid' }, { status: 500 })
+
+    // Return more detailed error message
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create kid'
+    return NextResponse.json({
+      error: 'Failed to create kid',
+      details: errorMessage,
+      stack: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : undefined) : undefined
+    }, { status: 500 })
   }
 }
