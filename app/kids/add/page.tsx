@@ -45,13 +45,18 @@ export default function AddKidPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to create kid')
+        // Show detailed error if available
+        const errorMsg = data.details
+          ? `${data.error}: ${JSON.stringify(data.details)}`
+          : data.error || 'Failed to create kid'
+        throw new Error(errorMsg)
       }
 
       // Success! Redirect to dashboard
       router.push('/dashboard')
       router.refresh()
     } catch (err) {
+      console.error('Error creating kid:', err)
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setLoading(false)

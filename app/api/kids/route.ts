@@ -58,12 +58,19 @@ export async function POST(request: Request) {
     const body = await request.json()
     const validatedData = CreateKidSchema.parse(body)
 
-    const dbUser = await prisma.user.findUnique({
+    // Find or create user in database
+    let dbUser = await prisma.user.findUnique({
       where: { supabaseId: user.id },
     })
 
     if (!dbUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+      dbUser = await prisma.user.create({
+        data: {
+          email: user.email!,
+          supabaseId: user.id,
+          name: user.user_metadata?.name || null,
+        },
+      })
     }
 
     const kid = await prisma.kid.create({
